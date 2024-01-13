@@ -1,21 +1,27 @@
 
-const express = require('express');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const cors = require("cors")
-require("dotenv").config()
+// const express = require('express');
+// const mongoose = require('mongoose');
+// const multer = require('multer');
+// const cors = require("cors");
+
+import express from 'express';
+import multer from 'multer';
+import cors from 'cors';
+import mongoose from "mongoose"
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const port = 3000;
 
+
+app.use(express.json());
 app.use(cors())
-
 // Connect to MongoDB
-mongoose.connect(process.env.URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
+async function main() {
+  await mongoose.connect(process.env.URL);
+}
+main()
 const taskSchema = new mongoose.Schema({
     task_id: String,
     task_name: String,
@@ -32,8 +38,14 @@ const taskSchema = new mongoose.Schema({
   const storage = multer.memoryStorage();
   const upload = multer({ storage: storage });
   
-  app.use(express.json());
   
+  app.get("/", (req, res) => {
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "App is Alive"
+    })
+  })
   app.post('/upload', upload.array('files'), async (req, res) => {
     try {
       const { task_id, task_name } = req.body;
@@ -83,5 +95,5 @@ const taskSchema = new mongoose.Schema({
   });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running at PORT ${port}`);
 });
